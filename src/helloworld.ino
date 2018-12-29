@@ -15,6 +15,12 @@ int enterDFU(String something) {
 Thread* t1;
 // Here we can create a new Mutex which is also awesome!
 Mutex* m1;
+Timer timer1(10000, signalEvery10Seconds);
+
+void signalEvery10Seconds() {
+  m1->unlock();
+  Particle.publish("message", "Hello World!");
+}
 
 // This is the function that will be run as the thread t1
 // Its goal is to take over the rgb LED built into the photon, temporarily and turning the led either solid blue or red
@@ -39,18 +45,17 @@ os_thread_return_t test() {
 }
 void setup() {
 
+  Serial.begin(9600);
   // Lets fire up the thread t1 and the mutex. Note that the mutex is used right away by the thread so propbaby should
   // initialize the mutex first.
   m1 = new Mutex();
   t1 = new Thread("testThread", test);
+  timer1.start();
+
 }
 
 // So loop is the "main application thread" but is really now a thread just like t1
 // It runs every 5 seconds publishing a message to the console but also unlocking the mutex
 void loop() {
-
-  m1->unlock();
-  Particle.publish("message", "Hello World!");
-  delay(10000);
 
 }
