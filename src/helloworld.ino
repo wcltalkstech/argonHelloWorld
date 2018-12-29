@@ -1,6 +1,6 @@
 // This put us in multi threading mode where the system thread that handles wifi, etc is on a separate thread from loop
 // This means the setup will start immediately
-SYSTEM_THREAD(ENABLED);
+//SYSTEM_THREAD(ENABLED);
 
 // Here we declare a cloud funtion that can be called from the console or using postman to cause the device to enter
 // dfu mode. This is nice because we can enter DFU mode to do a compile and download locally without touching the device
@@ -29,6 +29,7 @@ os_thread_return_t test() {
   bool isBlue = false;
   while (1) {
     m1->lock(); // this will suspend the thread if the lock is currently held.
+    Serial.printlnf("localIP: %s", Mesh.localIP().toString().c_str());
     if (!isBlue) {
       Serial.println("setting blue");
       RGB.control(true);
@@ -50,6 +51,7 @@ void setup() {
   Serial.begin(9600);
   // Lets fire up the thread t1 and the mutex. Note that the mutex is used right away by the thread so propbaby should
   // initialize the mutex first.
+
   m1 = new Mutex();
   t1 = new Thread("testThread", test);
   timer1.start();
