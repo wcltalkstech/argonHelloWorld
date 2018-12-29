@@ -30,11 +30,13 @@ os_thread_return_t test() {
   while (1) {
     m1->lock(); // this will suspend the thread if the lock is currently held.
     if (!isBlue) {
+      Serial.println("setting blue");
       RGB.control(true);
       RGB.color(0,0,255);
       delay(3000);
       RGB.control(false);
     } else {
+      Serial.println("setting red");
       RGB.control(true);
       RGB.color(255,0,0);
       delay(3000);
