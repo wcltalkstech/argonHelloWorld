@@ -1,16 +1,16 @@
 // This put us in multi threading mode where the system thread that handles wifi, etc is on a separate thread from loop
 // This means the setup will start immediately
-//SYSTEM_THREAD(ENABLED);
+SYSTEM_THREAD(ENABLED);
+#include "Adafruit_MAX31855.h"
 
-// Here we declare a cloud funtion that can be called from the console or using postman to cause the device to enter
-// dfu mode. This is nice because we can enter DFU mode to do a compile and download locally without touching the device
-// and holding down both buttons, then releasing reset and then setup to get into DFU mode
-bool success = Particle.function("enterDFU", enterDFU);
+int thermoCLK = A3;
+int thermoCS = A2;
+int thermoDO = A4;
 
-int enterDFU(String something) {
-  System.dfu();
-}
+double tempC;
 
+// Initialize the Thermocouple
+Adafruit_MAX31855 thermocouple(thermoCLK, thermoCS, thermoDO);
 // Here we can create a new Thread. OMG, hooray!
 Thread* t1;
 // Here we can create a new Mutex which is also awesome!
@@ -30,6 +30,8 @@ os_thread_return_t test() {
   while (1) {
     m1->lock(); // this will suspend the thread if the lock is currently held.
     Serial.printlnf("localIP: %s", Mesh.localIP().toString().c_str());
+    Serial.println(thermocouple.readCelsius());
+    tempC = thermocouple.readCelsius();
     if (!isBlue) {
       Serial.println("setting blue");
       RGB.control(true);
@@ -48,6 +50,7 @@ os_thread_return_t test() {
 }
 void setup() {
 
+  Particle.variable("temp", tempC);
   Serial.begin(9600);
   // Lets fire up the thread t1 and the mutex. Note that the mutex is used right away by the thread so propbaby should
   // initialize the mutex first.
